@@ -6,6 +6,8 @@
   },
   "scripts": {
     "lint": "gts lint",
+    "start": "ts-node src/index.ts",
+    "build": "tsc",
     "clean": "gts clean",
     "compile": "tsc",
     "fix": "gts fix",
