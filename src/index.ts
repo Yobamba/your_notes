@@ -59,9 +59,7 @@ class NotesManager {
   }
 
   deleteNote(id: string) {
-    console.log('Notes before deletion:', this.notes);
     const index = this.notes.findIndex(note => note.id === id);
-    console.log('Index:', index);
     if (index !== -1) {
       const deletedNote = this.notes.splice(index, 1)[0];
       this.undoStack.push({
@@ -73,7 +71,6 @@ class NotesManager {
     } else {
       this.printError(`Note with ID "${id}" not found.`);
     }
-    console.log('Notes after deletion:', this.notes);
   }
 
   getNote(id: string): Note | undefined {
@@ -177,10 +174,8 @@ class NotesManager {
   }
 
   addNoteWithoutStacking(note: Note) {
-    console.log('Adding note:', note); // Log the note being added
     this.notes.push(note);
     this.printOperationResult(`Note "${note.title}" added.`);
-    console.log('Notes after adding:', this.notes); // Log the state of the notes array
   }
 
   deleteNoteWithoutStacking(id: string) {
@@ -270,7 +265,6 @@ getInfo() - WORKS
 const yourNotes = new NotesManager();
 yourNotes.addNote(newNote);
 yourNotes.addNote(secondNote);
-yourNotes.saveToFile('test file');
 
 /**
  * Constructor - WORKS
@@ -279,6 +273,7 @@ yourNotes.saveToFile('test file');
  * listNotes() - WORKS
  * deleteNote() - WORKS
  * undo() - WORKS
+ * saveToFile() - WORKS
  */
 
 // Finished testing the NotesManager class ****

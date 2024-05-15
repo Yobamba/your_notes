@@ -230,6 +230,7 @@ getInfo() - WORKS
 const yourNotes = new NotesManager();
 yourNotes.addNote(newNote);
 yourNotes.addNote(secondNote);
+yourNotes.undo();
 yourNotes.saveToFile('test file');
 /**
  * Constructor - WORKS
