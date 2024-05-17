@@ -1,54 +1,61 @@
 import * as fs from 'fs';
 
 class Note {
-  id: string; // to uniquely identify the notes
-  title: string; // title of the note
-  content: string; // whatever the user decides to write in the note
-  createdAt: Date; // note creation date
-  updatedAt: Date; // date the note was updated
+  id: string;
+  title: string;
+  content: string;
+  createdAt: Date;
+  updatedAt: Date;
 
-  constructor(title: string, content: string) {
-    this.id = this.generateUniqueId(); // the user doesn't have to come up with an id
+  constructor(
+    title: string,
+    content: string,
+    id?: string,
+    createdAt?: Date,
+    updatedAt?: Date
+  ) {
+    this.id = id || this.generateUniqueId();
     this.title = title;
     this.content = content;
-    this.createdAt = new Date();
-    this.updatedAt = new Date();
+    this.createdAt = createdAt || new Date();
+    this.updatedAt = updatedAt || new Date();
   }
 
-  // method to update the note
   update(title: string, content: string) {
     this.title = title;
     this.content = content;
     this.updatedAt = new Date();
   }
 
-  // method to get the note details
   getInfo(): string {
     return `
-          ID: ${this.id}
-          Title: ${this.title}
-          Content: ${this.content}
-          Created At: ${this.createdAt}
-          Updated At: ${this.updatedAt}
-      `;
+      ID: ${this.id}
+      Title: ${this.title}
+      Content: ${this.content}
+      Created At: ${this.createdAt}
+      Updated At: ${this.updatedAt}
+    `;
   }
-  // Generate a unique ID
+
   private generateUniqueId(): string {
     return Math.random().toString(36).substr(2, 9);
   }
-} // The Notes class ends here
+}
 
 class NotesManager {
   notes: Note[];
-
   private undoStack: {action: string; data?: any; subActions?: any[]}[];
   private redoStack: {action: string; data?: any; subActions?: any[]}[];
 
   constructor() {
     this.notes = [];
-
     this.undoStack = [];
     this.redoStack = [];
+  }
+
+  addNoteWithoutStacking(note: Note) {
+    this.notes.push(note);
+    this.printOperationResult(`Note "${note.title}" added.`);
   }
 
   addNote(note: Note) {
@@ -56,25 +63,6 @@ class NotesManager {
     this.undoStack.push({action: 'addNote', data: {note}});
     this.redoStack = []; // Clear redo stack when new action is performed
     this.printOperationResult(`Note "${note.title}" added.`);
-  }
-
-  deleteNote(id: string) {
-    const index = this.notes.findIndex(note => note.id === id);
-    if (index !== -1) {
-      const deletedNote = this.notes.splice(index, 1)[0];
-      this.undoStack.push({
-        action: 'deleteNote',
-        data: {id, note: deletedNote},
-      });
-      this.redoStack = []; // Clear redo stack when new action is performed
-      this.printOperationResult(`Note "${deletedNote.title}" deleted.`);
-    } else {
-      this.printError(`Note with ID "${id}" not found.`);
-    }
-  }
-
-  getNote(id: string): Note | undefined {
-    return this.notes.find(note => note.id === id);
   }
 
   listNotes(): string {
@@ -85,157 +73,121 @@ class NotesManager {
     return result;
   }
 
-  private deleteNoteWithSubActions(id: string, subActions?: any[]) {
-    // Execute delete note action
-    this.deleteNote(id);
-
-    // Execute sub-actions recursively
-    if (subActions) {
-      for (const subAction of subActions) {
-        this.executeRedoAction(subAction);
-      }
-    }
+  getNoteById(noteId: string): Note | undefined {
+    return this.notes.find(note => note.id === noteId);
   }
 
-  private executeRedoAction(action: any) {
-    switch (action.action) {
-      case 'addNote':
-        this.addNoteWithSubActions(action.data.note, action.subActions);
-        break;
-      case 'deleteNote':
-        this.deleteNoteWithSubActions(action.data.id, action.subActions);
-        break;
-      // Add cases for other actions if needed
-    }
-  }
-
-  private addNoteWithSubActions(note: Note, subActions?: any[]) {
-    // Execute add note action
-    this.addNote(note);
-
-    // Execute sub-actions recursively
-    if (subActions) {
-      for (const subAction of subActions) {
-        this.executeUndoAction(subAction);
-      }
-    }
-  }
-
-  private executeUndoAction(action: any) {
-    switch (action.action) {
-      case 'addNote':
-        this.deleteNoteWithSubActions(action.data.id, action.subActions);
-        break;
-      case 'deleteNote':
-        this.addNoteWithSubActions(action.data.note, action.subActions);
-        break;
-      // Add cases for other actions if needed
+  deleteNoteById(noteId: string) {
+    const index = this.notes.findIndex(note => note.id === noteId);
+    if (index !== -1) {
+      const deletedNote = this.notes.splice(index, 1)[0];
+      this.undoStack.push({action: 'deleteNote', data: {note: deletedNote}});
+      this.redoStack = []; // Clear redo stack when new action is performed
+      this.printOperationResult(`Note "${deletedNote.title}" deleted.`);
     }
   }
 
   undo() {
-    if (this.undoStack.length === 0) {
-      console.log('Nothing to undo.');
-      return;
-    }
-
     const lastAction = this.undoStack.pop();
-    if (lastAction) {
-      console.log('Undo action:', lastAction);
-      if (lastAction.action === 'deleteNote') {
-        this.addNoteWithoutStacking(lastAction.data.note); // Restore the deleted note
-      }
+    if (!lastAction) return;
 
-      if (lastAction.action === 'addNote') {
-        this.deleteNoteWithoutStacking(lastAction.data.note.id);
-      } else {
-        this.executeActionRecursively(lastAction, 'undo');
-      }
-      this.redoStack.push(lastAction); // Move action to redo stack
-    }
-  }
-
-  private executeActionRecursively(action: any, direction: 'undo' | 'redo') {
-    const actions =
-      direction === 'undo' ? action.subActions?.reverse() : action.subActions;
-    if (actions) {
-      for (const subAction of actions) {
-        this.executeActionRecursively(subAction, direction);
-      }
+    switch (lastAction.action) {
+      case 'addNote':
+        this.notes.pop();
+        break;
+      case 'deleteNote':
+        if (lastAction.data && lastAction.data.note) {
+          this.notes.push(lastAction.data.note);
+        }
+        break;
+      // Add other cases if needed
     }
 
-    // Execute the main action
-    if (direction === 'undo') {
-      // If undoing, switch direction for deleteNote action
-      this.executeSingleAction({...action, action: 'deleteNote'});
-    } else {
-      this.executeSingleAction(action);
-    }
-  }
-
-  addNoteWithoutStacking(note: Note) {
-    this.notes.push(note);
-    this.printOperationResult(`Note "${note.title}" added.`);
-  }
-
-  deleteNoteWithoutStacking(id: string) {
-    // Find and delete the note without recursion, just remove from the array
-    const index = this.notes.findIndex(note => note.id === id);
-    if (index !== -1) {
-      const deletedNote = this.notes.splice(index, 1)[0];
-      this.printOperationResult(`Note "${deletedNote.title}" deleted.`);
-    } else {
-      this.printError(`Note with ID "${id}" not found.`);
-    }
+    this.redoStack.push(lastAction);
+    this.printOperationResult(`Undo: ${lastAction.action}`);
   }
 
   redo() {
-    if (this.redoStack.length === 0) {
-      console.log('Nothing to redo.');
-      return;
-    }
+    const lastUndoAction = this.redoStack.pop();
+    if (!lastUndoAction) return;
 
-    const lastAction = this.redoStack.pop();
-    if (lastAction) {
-      this.executeActionRecursively(lastAction, 'undo');
-      this.undoStack.push(lastAction); // Move action to undo stack
-    }
-  }
-
-  private executeSingleAction(action: any) {
-    switch (action.action) {
+    switch (lastUndoAction.action) {
       case 'addNote':
-        this.addNoteWithoutStacking(action.data.note);
+        if (lastUndoAction.data && lastUndoAction.data.note) {
+          this.notes.push(lastUndoAction.data.note);
+        }
         break;
       case 'deleteNote':
-        this.deleteNoteWithoutStacking(action.data.id);
+        if (lastUndoAction.data && lastUndoAction.data.note) {
+          this.deleteNoteById(lastUndoAction.data.note.id);
+        }
         break;
-      // Add cases for other actions if needed
+      // Add other cases if needed
     }
+
+    this.undoStack.push(lastUndoAction);
+    this.printOperationResult(`Redo: ${lastUndoAction.action}`);
   }
 
-  async saveToFile(fileName: string) {
-    const data = JSON.stringify(this.notes, null, 2); // Use null and 2 for indentation
-    fs.writeFile(fileName, data, error => {
-      if (error) {
-        this.printError(`Error saving notes to file "${fileName}": ${error}`);
-      } else {
-        this.printOperationResult(`Notes saved to file "${fileName}".`);
+  async saveToFile(fileName: string, callback: () => void) {
+    fs.readFile(fileName, 'utf-8', (readError, data) => {
+      let existingNotes = [];
+      if (!readError) {
+        try {
+          existingNotes = JSON.parse(data);
+        } catch (parseError) {
+          this.printError(
+            `Error parsing existing notes from file "${fileName}": ${parseError}`
+          );
+        }
       }
+
+      // Combine existing notes with new notes
+      const combinedNotes = existingNotes.concat(this.notes);
+      const jsonData = JSON.stringify(combinedNotes, null, 2); // Format JSON with 2 spaces indentation
+
+      fs.writeFile(fileName, jsonData, 'utf-8', writeError => {
+        if (writeError) {
+          this.printError(
+            `Error saving notes to file "${fileName}": ${writeError}`
+          );
+        } else {
+          this.printOperationResult(`Notes saved to file "${fileName}".`);
+          callback();
+        }
+      });
     });
   }
 
-  async loadFromFile(fileName: string) {
+  async loadFromFile(fileName: string, callback: () => void) {
     fs.readFile(fileName, 'utf-8', (error, data) => {
       if (error) {
         this.printError(
           `Error loading notes from file "${fileName}": ${error}`
         );
       } else {
-        this.notes = JSON.parse(data).map(
-          (note: Note) => new Note(note.title, note.content)
-        );
-        this.printOperationResult(`Notes loaded from file "${fileName}".`);
+        try {
+          const notesData = JSON.parse(data);
+          for (const noteData of notesData) {
+            // Check if the note already exists before adding
+            if (!this.getNoteById(noteData.id)) {
+              const note = new Note(
+                noteData.title,
+                noteData.content,
+                noteData.id,
+                new Date(noteData.createdAt),
+                new Date(noteData.updatedAt)
+              );
+              this.notes.push(note); // Add note directly to the array
+            }
+          }
+          this.printOperationResult(`Notes loaded from file "${fileName}".`);
+          callback(); // Call the callback function after loading the notes
+        } catch (parseError) {
+          this.printError(
+            `Error parsing notes from file "${fileName}": ${parseError}`
+          );
+        }
       }
     });
   }
@@ -247,33 +199,35 @@ class NotesManager {
   printError(message: string) {
     console.error(`Error: ${message}`);
   }
-} // The NotesManager class ends here
+}
 
-// Testing the Note class *****
-const newNote = new Note('First note', 'Just testing this');
-const secondNote = new Note('Second note', 'More irrelevant content');
-// console.log(newNote.getInfo());
+// Testing the Note and NotesManager classes
+
+// const note5 = new Note('5th Note', 'Testing the savetofile method');
+// const note6 = new Note('6th Note', 'same as 5th note');
+
+const yourNotes = new NotesManager();
+// yourNotes.addNote(note5);
+// yourNotes.addNote(note6);
+
+const fileName = 'test.json';
+yourNotes.saveToFile(fileName, () => {
+  console.log('saved notes.');
+});
+yourNotes.loadFromFile(fileName, () => {
+  const notesList = yourNotes.listNotes();
+  console.log(notesList);
+});
 
 /*
 Constructor - WORKS
 getInfo() - WORKS
+addNote() - WORKS
+getNoteById() - WORKS
+deleteNoteById() - WORKS
+undo() - WORKS
+redo() - WORKS
+saveToFile() - WORKS
+loadFromFile() - WORKS
+listNotes() - WORKS
 */
-
-// Finished testing the Note class ****
-
-// Testing the NotesManager class ****
-const yourNotes = new NotesManager();
-yourNotes.addNote(newNote);
-yourNotes.addNote(secondNote);
-
-/**
- * Constructor - WORKS
- * addNote() - WORKS
- * getNote() - WORKS
- * listNotes() - WORKS
- * deleteNote() - WORKS
- * undo() - WORKS
- * saveToFile() - WORKS
- */
-
-// Finished testing the NotesManager class ****
