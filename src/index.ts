@@ -14,11 +14,11 @@ class Note {
     createdAt?: Date,
     updatedAt?: Date
   ) {
-    this.id = id || this.generateUniqueId();
+    this.id = id || this.generateUniqueId(); // if the id isn't provided, one will be created here
     this.title = title;
     this.content = content;
-    this.createdAt = createdAt || new Date();
-    this.updatedAt = updatedAt || new Date();
+    this.createdAt = createdAt || new Date(); // if no date is provided, one will be created here
+    this.updatedAt = updatedAt || new Date(); // if no date is provided, one will be created here
   }
 
   update(title: string, content: string) {
@@ -37,12 +37,12 @@ class Note {
     `;
   }
 
-  private generateUniqueId(): string {
+  private generateUniqueId(): string { // Method to generate a unique ID for a note
     return Math.random().toString(36).substr(2, 9);
   }
 }
 
-class NotesManager {
+class NotesManager { // Defining a class for managing notes
   notes: Note[];
   private undoStack: { action: string; data?: any; subActions?: any[] }[];
   private redoStack: { action: string; data?: any; subActions?: any[] }[];
@@ -53,6 +53,7 @@ class NotesManager {
     this.redoStack = [];
   }
 
+  // Method to add a note without stacking it for undo/redo
   addNoteWithoutStacking(note: Note) {
     this.notes.push(note);
     this.printOperationResult(`Note "${note.title}" added.`);
@@ -65,7 +66,7 @@ class NotesManager {
     this.printOperationResult(`Note "${note.title}" added.`);
   }
 
-  listNotes(): string {
+  listNotes(): string { // Method to list all notes
     let result = '';
     this.notes.forEach(note => {
       result += note.getInfo() + '\n\n';
@@ -87,7 +88,7 @@ class NotesManager {
     }
   }
 
-  undo() {
+  undo() { // Method to undo the last action
     const lastAction = this.undoStack.pop();
     if (!lastAction) return;
 
@@ -100,13 +101,13 @@ class NotesManager {
           this.notes.push(lastAction.data.note);
         }
         break;
-      // Add other cases if needed
     }
 
     this.redoStack.push(lastAction);
     this.printOperationResult(`Undo: ${lastAction.action}`);
   }
 
+  // Method to redo the last undone action
   redo() {
     const lastUndoAction = this.redoStack.pop();
     if (!lastUndoAction) return;
@@ -122,16 +123,15 @@ class NotesManager {
           this.deleteNoteById(lastUndoAction.data.note.id);
         }
         break;
-      // Add other cases if needed
     }
 
     this.undoStack.push(lastUndoAction);
     this.printOperationResult(`Redo: ${lastUndoAction.action}`);
   }
 
+  // method to save the notes to a file
   saveToFile(fileName: string, callback: () => void) {
     if (typeof window === 'undefined') {
-      // Node.js environment
       const fs = require('fs');
       fs.readFile(fileName, 'utf-8', (readError: any, data: string) => {
         let existingNotes = [];
@@ -169,6 +169,7 @@ class NotesManager {
     }
   }
 
+  // Method to load notes from a file
   loadFromFile(fileName: string, callback: () => void) {
     if (typeof window === 'undefined') {
       // Node.js environment

@@ -1,32 +1,32 @@
 ﻿# Overview
 
-{Important! Do not say in this section that this is college assignment. Talk about what you are trying to accomplish as a software engineer to further your learning.}
-
-{Provide a description of the software that you wrote to demonstrate the TypeScript language.}
-
-{Describe your purpose for writing this software.}
+Built a note-taking app using TypeScript to practice working with the language. 
 
 {Provide a link to your YouTube demonstration. It should be a 4-5 minute demo of the software running and a walkthrough of the code. Focus should be on sharing what you learned about the language syntax.}
 
-[Software Demo Video](http://youtube.link.goes.here)
+[Software Demo Video](https://youtu.be/F2Epd4Db-eQ)
 
 # Development Environment
 
 {Describe the tools that you used to develop the software}
+Tools used:
+- VS Code;
 
-{Describe the programming language that you used and any libraries.}
+Languages used: 
+- TypeScript;
+- JavaScript;
+- HTML5;
+- CSS3;
 
 # Useful Websites
 
 {Make a list of websites that you found helpful in this project}
 
-- [Web Site Name](http://url.link.goes.here)
-- [Web Site Name](http://url.link.goes.here)
+- [TypeScript Documentation](https://www.typescriptlang.org/)
+- [What is TypeScript and why should you use it?](https://www.contentful.com/blog/what-is-typescript-and-why-should-you-use-it/#:~:text=TypeScript%20extends%20JavaScript%20and%20improves,%2C%20tuple%2C%20generics%2C%20etc.)
 
 # Future Work
 
-{Make a list of things that you need to fix, improve, and add in the future.}
-
-- Item 1
-- Item 2
-- Item 3
+- Improve the GUI;
+- Integrate more class methods with the GUI;
+- Document better;
