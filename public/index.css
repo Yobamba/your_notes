@@ -1,0 +1,65 @@
+body {
+  background-color: #E1F7F5;
+}
+
+#notes-container {
+ display: grid;
+ grid-template-columns: auto;
+ grid-template-rows: auto;
+ gap: 5px;
+}
+
+.note-div {
+  background-color: #1679AB;
+  max-width: 500px;
+}
+
+.noteP {
+  color: #daff8e;
+}
+
+/* Form CSS*/
+/* Style the form container */
+#form-container {
+  margin-bottom: 20px;
+}
+
+/* Style the form */
+#note-form {
+  display: flex;
+  flex-direction: column;
+  max-width: 300px;
+}
+
+/* Style the form labels */
+#note-form label {
+  margin-bottom: 5px;
+}
+
+/* Style the form input fields */
+#note-form input[type="text"],
+#note-form textarea {
+  padding: 8px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+/* Style the form button */
+#note-form button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+/* Style the form button on hover */
+#note-form button:hover {
+  background-color: #0056b3;
+}
+
+

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" type="text/css" href="/index.css" />
+    <title>Your Notes</title>
+  </head>
+  <body>
+    <div id="form-container">
+      <form id="note-form">
+        <label for="title">Title:</label><br>
+        <input type="text" id="title" name="title"><br>
+        <label for="content">Content:</label><br>
+        <textarea id="content" name="content" maxlength="280"></textarea><br>
+        <button type="submit">Create Note</button>
+      </form>
+    </div>
+    <div id="notes-container"></div>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+
+    <script type="module" src="/dist/index.js"></script>
+  
+
+  </body>
+</html>
