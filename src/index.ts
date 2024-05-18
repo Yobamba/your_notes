@@ -21,13 +21,13 @@ class Note {
     this.updatedAt = updatedAt || new Date(); // if no date is provided, one will be created here
   }
 
-  update(title: string, content: string) {
+  update(title: string, content: string) { // updates the note
     this.title = title;
     this.content = content;
     this.updatedAt = new Date();
   }
 
-  getInfo(): string {
+  getInfo(): string { // gets info on the note
     return `
       ID: ${this.id}
       Title: ${this.title}
@@ -59,7 +59,7 @@ class NotesManager { // Defining a class for managing notes
     this.printOperationResult(`Note "${note.title}" added.`);
   }
 
-  addNote(note: Note) {
+  addNote(note: Note) { // add the note to the class and also the action to the stack
     this.notes.push(note);
     this.undoStack.push({ action: 'addNote', data: { note } });
     this.redoStack = []; // Clear redo stack when new action is performed
@@ -74,11 +74,11 @@ class NotesManager { // Defining a class for managing notes
     return result;
   }
 
-  getNoteById(noteId: string): Note | undefined {
+  getNoteById(noteId: string): Note | undefined { // get the note by the id
     return this.notes.find(note => note.id === noteId);
   }
 
-  deleteNoteById(noteId: string) {
+  deleteNoteById(noteId: string) { // to delete the note using the id
     const index = this.notes.findIndex(note => note.id === noteId);
     if (index !== -1) {
       const deletedNote = this.notes.splice(index, 1)[0];
@@ -236,11 +236,11 @@ class NotesManager { // Defining a class for managing notes
     }
   }
 
-  printOperationResult(message: string) {
+  printOperationResult(message: string) { // help the user know the result
     console.log(`Operation Result: ${message}`);
   }
 
-  printError(message: string) {
+  printError(message: string) { // to inform the user of errors
     console.error(`Error: ${message}`);
   }
 }
